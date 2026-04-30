@@ -866,6 +866,21 @@ function importJSON(ev){const f=ev.target.files[0];if(!f)return;const r=new File
 // ══════════════════════════════════════════════════════
 initHg();initBalmer();initSurvey();drawEnergy();
 if(localStorage.getItem('spectro3'))loadAll();
+  // Auto-load JSON data on page open
+window.addEventListener('load', () => {
+  fetch('spectro_2026-04-26.json')
+    .then(response => {
+      if (!response.ok) throw new Error('JSON not found');
+      return response.json();
+    })
+    .then(data => {
+      restoreAll(data);
+      calcHg();
+      calcBalmer();
+      calcSurvey();
+    })
+    .catch(err => console.log('No auto-load JSON found:', err.message));
+});
 </script>
 </body>
 </html>
