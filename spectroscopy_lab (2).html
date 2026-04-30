@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spectroscopy Lab — PHYS 3719</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#07080e;--bg2:#0d0f18;--bg3:#131620;--bg4:#1a1d2a;
+  --border:#232738;--border2:#2e3348;
+  --tx:#d8dae8;--tx2:#8a8eb0;--tx3:#5c6080;
+  --acc:#00e87b;--acc2:#00b864;
+  --red:#ff3e55;--cyan:#00d4c8;--blue:#4477ff;--violet:#9955ff;--yellow:#ffd033;--orange:#ff7733;
+}
+body{background:var(--bg);color:var(--tx);font-family:'Source Serif 4',Georgia,serif;line-height:1.6;min-height:100vh}
+.mono{font-family:'IBM Plex Mono',monospace}
+
+/* ── Header ── */
+.hdr{text-align:center;padding:28px 20px 20px;position:relative}
+.hdr::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,#9955ff,#4477ff,#00d4c8,#00e87b,#ffd033,#ff7733,#ff3e55);
+  animation:shimmer 6s ease-in-out infinite alternate}
+@keyframes shimmer{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(15deg)}}
+.hdr h1{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:1.3rem;letter-spacing:.15em;
+  background:linear-gradient(135deg,var(--acc),var(--cyan),var(--violet));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr .sub{font-family:'IBM Plex Mono';font-size:.65rem;color:var(--tx3);letter-spacing:.35em;margin-top:2px}
+
+/* ── Nav ── */
+nav{display:flex;justify-content:center;gap:3px;padding:8px 12px;flex-wrap:wrap}
+nav button{background:var(--bg2);border:1px solid var(--border);color:var(--tx3);
+  font-family:'IBM Plex Mono';font-size:.65rem;letter-spacing:.06em;padding:7px 14px;
+  cursor:pointer;transition:all .2s;text-transform:uppercase}
+nav button:hover{border-color:var(--acc2);color:var(--tx2)}
+nav button.on{background:var(--bg3);border-color:var(--acc);color:var(--acc);box-shadow:0 0 12px #00e87b18}
+
+/* ── Panels ── */
+.pnl{display:none;max-width:960px;margin:0 auto;padding:8px 16px 48px}
+.pnl.on{display:block;animation:fadein .35s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Cards ── */
+.card{background:var(--bg3);border:1px solid var(--border);padding:20px;margin-bottom:14px;position:relative}
+.card[data-accent]::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+.card[data-accent="r"]::before{background:var(--red)} .card[data-accent="g"]::before{background:var(--acc)}
+.card[data-accent="b"]::before{background:var(--blue)} .card[data-accent="v"]::before{background:var(--violet)}
+.card[data-accent="c"]::before{background:var(--cyan)} .card[data-accent="y"]::before{background:var(--yellow)}
+.card h2{font-family:'IBM Plex Mono';font-size:.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;color:var(--tx)}
+.card .desc{font-size:.8rem;color:var(--tx2);margin-bottom:12px}
+
+/* ── Inputs ── */
+label.f{display:block;font-family:'IBM Plex Mono';font-size:.62rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+input.f,select.f{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--tx);
+  font-family:'IBM Plex Mono';font-size:.82rem;padding:6px 10px;margin-bottom:8px;outline:none;transition:border .2s}
+input.f:focus{border-color:var(--acc);box-shadow:0 0 6px #00e87b12}
+textarea.f{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--tx);
+  font-family:'IBM Plex Mono';font-size:.78rem;padding:8px;min-height:100px;resize:vertical;outline:none}
+textarea.f:focus{border-color:var(--acc)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* ── Buttons ── */
+.btn{background:transparent;border:1px solid var(--acc);color:var(--acc);font-family:'IBM Plex Mono';
+  font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;padding:7px 18px;cursor:pointer;transition:all .25s;margin:4px 4px 4px 0}
+.btn:hover{background:var(--acc);color:var(--bg);box-shadow:0 0 16px #00e87b30}
+.btn.danger{border-color:var(--red);color:var(--red)}
+.btn.danger:hover{background:var(--red);color:#fff}
+.btn.sm{font-size:.58rem;padding:4px 10px}
+.btn.export{border-color:var(--yellow);color:var(--yellow)}
+.btn.export:hover{background:var(--yellow);color:var(--bg)}
+
+/* ── Result Box ── */
+.rbox{background:var(--bg);border:1px solid var(--border);padding:12px;font-family:'IBM Plex Mono';
+  font-size:.76rem;line-height:1.8;white-space:pre-wrap;margin-top:8px}
+.rbox .v{color:var(--acc);font-weight:500} .rbox .w{color:var(--yellow)} .rbox .e{color:var(--red)}
+
+/* ── Tables ── */
+table.dt{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono';font-size:.72rem}
+table.dt th{text-align:left;padding:6px 5px;border-bottom:1px solid var(--border2);color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;font-weight:400;font-size:.62rem}
+table.dt td{padding:5px;border-bottom:1px solid var(--border);color:var(--tx)}
+table.dt input{background:var(--bg);border:1px solid var(--border);color:var(--tx);font-family:'IBM Plex Mono';font-size:.75rem;padding:4px 6px;width:100%;outline:none}
+table.dt input:focus{border-color:var(--acc)}
+
+/* ── SVG Graphs ── */
+.graph-wrap{position:relative;margin:8px 0}
+.graph-wrap svg{display:block;width:100%;height:auto;background:var(--bg);border:1px solid var(--border)}
+.graph-wrap .dl{position:absolute;top:8px;right:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--tx3);
+  font-family:'IBM Plex Mono';font-size:.58rem;padding:3px 8px;cursor:pointer;opacity:.7;transition:all .2s;z-index:2}
+.graph-wrap .dl:hover{opacity:1;background:#fff;color:#111;border-color:#fff}
+
+/* ── Swatch ── */
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+
+@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}nav button{font-size:.58rem;padding:5px 8px}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>SPECTROSCOPY LAB</h1>
+  <div class="sub">PHYS 3719 &middot; Data Workbench</div>
+</div>
+
+<nav id="nav">
+  <button class="on" data-tab="hgcal">Hg Calibration</button>
+  <button data-tab="balmer">Balmer Series</button>
+  <button data-tab="rydberg">Rydberg Constant</button>
+  <button data-tab="survey">Gas Survey</button>
+  <button data-tab="notes">Lab Notes</button>
+</nav>
+
+<!-- ════════════════════ HG CALIBRATION ════════════════════ -->
+<div id="hgcal" class="pnl on">
+  <div class="card" data-accent="g">
+    <h2>Mercury Calibration — Solve for d</h2>
+    <p class="desc">Known Hg emission lines + measured angles → grating spacing d via d·sin(θ) = m·λ. Enter your spectrometer reading; θ = |center − reading|.</p>
+    <div class="g3">
+      <div><label class="f">Center angle (°)</label><input class="f" type="number" id="hg-center" value="130" step="0.01"></div>
+      <div><label class="f">Order m</label><input class="f" type="number" id="hg-order" value="1" min="1"></div>
+      <div></div>
+    </div>
+    <table class="dt" id="hg-table">
+      <thead><tr><th>Line</th><th>λ known (nm)</th><th>Reading (°)</th><th>Arcmin (')</th><th>θ</th><th>d (nm)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div style="margin-top:10px"><button class="btn" onclick="calcHg()">Calculate d</button><button class="btn danger" onclick="clearHg()">Clear</button></div>
+    <div class="rbox" id="hg-out">Enter angles and click Calculate.</div>
+  </div>
+  <div class="card" data-accent="v">
+    <h2>Grating Summary</h2>
+    <div class="g2">
+      <div><label class="f">Mean d (nm)</label><div class="rbox" id="hg-d-mean">—</div></div>
+      <div><label class="f">σ / σ_mean (nm)</label><div class="rbox" id="hg-d-std">—</div></div>
+    </div>
+  </div>
+  <div class="card" data-accent="b">
+    <h2>sin(θ) vs λ — Linear Fit</h2>
+    <p class="desc">Slope = m/d. Linearity validates the grating equation.</p>
+    <div class="graph-wrap" id="gw-hg-sinlam"><button class="dl" onclick="dlSVG('gw-hg-sinlam','sin_theta_vs_lambda')">☀ PNG</button></div>
+  </div>
+  <div class="card" data-accent="g">
+    <h2>d per Spectral Line</h2>
+    <p class="desc">Consistency of d across wavelengths. Band = mean ± σ.</p>
+    <div class="graph-wrap" id="gw-hg-dbar"><button class="dl" onclick="dlSVG('gw-hg-dbar','d_per_line')">☀ PNG</button></div>
+  </div>
+</div>
+
+<!-- ════════════════════ BALMER ════════════════════ -->
+<div id="balmer" class="pnl">
+  <div class="card" data-accent="r">
+    <h2>Hydrogen Balmer Series</h2>
+    <p class="desc">Enter raw spectrometer readings for each Balmer line. θ = |center − reading|. λ = d·sin(θ)/m.</p>
+    <div class="g3">
+      <div><label class="f">d (nm)</label><input class="f" type="number" id="bal-d" value="1666.7" step="0.1"></div>
+      <div><label class="f">Center (°)</label><input class="f" type="number" id="bal-center" value="130" step="0.01"></div>
+      <div><label class="f">Order m</label><input class="f" type="number" id="bal-m" value="1" min="1"></div>
+    </div>
+    <table class="dt" id="bal-table">
+      <thead><tr><th>Line</th><th>n<sub>i</sub></th><th>λ theory</th><th>Reading (°)</th><th>Arcmin</th><th>θ</th><th>λ meas</th><th>± δλ</th><th>% Err</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div style="margin-top:10px"><button class="btn" onclick="calcBalmer()">Analyze</button></div>
+    <div class="rbox" id="bal-out">Enter readings and click Analyze.</div>
+  </div>
+  <div class="card" data-accent="c">
+    <h2>Measured vs Theoretical Wavelength</h2>
+    <p class="desc">Grouped bars with ±1 arcminute uncertainty propagation: δλ = (d/m)·cos(θ)·δθ</p>
+    <div class="graph-wrap" id="gw-bal-cmp"><button class="dl" onclick="dlSVG('gw-bal-cmp','balmer_compare')">☀ PNG</button></div>
+  </div>
+  <div class="card" data-accent="r">
+    <h2>Percent Error</h2>
+    <div class="graph-wrap" id="gw-bal-err"><button class="dl" onclick="dlSVG('gw-bal-err','balmer_pct_error')">☀ PNG</button></div>
+  </div>
+  <div class="card" data-accent="b">
+    <h2>Energy Level Diagram</h2>
+    <div class="graph-wrap" id="gw-energy"><button class="dl" onclick="dlSVG('gw-energy','energy_levels')">☀ PNG</button></div>
+  </div>
+</div>
+
+<!-- ════════════════════ RYDBERG ════════════════════ -->
+<div id="rydberg" class="pnl">
+  <div class="card" data-accent="g">
+    <h2>Rydberg Constant R<sub>H</sub></h2>
+    <p class="desc">Computed from Balmer data. Run Balmer analysis first.</p>
+    <button class="btn" onclick="calcRydberg()">Calculate</button>
+    <div class="rbox" id="ryd-out">—</div>
+  </div>
+  <div class="card" data-accent="v">
+    <h2>1/λ vs (1/4 − 1/n<sub>i</sub>²) — Slope = R<sub>H</sub></h2>
+    <p class="desc">Classic graphical method. Regression through origin with uncertainty bars.</p>
+    <div class="graph-wrap" id="gw-ryd-lin"><button class="dl" onclick="dlSVG('gw-ryd-lin','rydberg_linear')">☀ PNG</button></div>
+  </div>
+</div>
+
+<!-- ════════════════════ GAS SURVEY ════════════════════ -->
+<div id="survey" class="pnl">
+  <div class="card" data-accent="g">
+    <h2>Gas Survey Setup</h2>
+    <p class="desc">Enter spectrometer readings for each gas. One column: degrees + arcminutes. Site computes λ and identifies the line.</p>
+    <div class="g3">
+      <div><label class="f">Center (°)</label><input class="f" type="number" id="gs-center" value="130" step="0.01"></div>
+      <div><label class="f">d (nm)</label><input class="f" type="number" id="gs-d" value="1666.7" step="0.1"></div>
+      <div><label class="f">Order m</label><input class="f" type="number" id="gs-m" value="1" min="1"></div>
+    </div>
+  </div>
+  <div id="gs-elements"></div>
+  <div style="margin-top:8px"><button class="btn" onclick="calcSurvey()">Calculate All</button><button class="btn danger" onclick="clearSurvey()">Clear All</button></div>
+  <div class="rbox" id="gs-out">Enter data and click Calculate All.</div>
+  <div class="card" data-accent="b">
+    <h2>Comparative Emission Spectra</h2>
+    <p class="desc">All measured lines in spectral color, per-element lanes. Dashed = known reference.</p>
+    <div class="graph-wrap" id="gw-gs-spec"><button class="dl" onclick="dlSVG('gw-gs-spec','emission_spectra')">☀ PNG</button></div>
+  </div>
+  <div class="card" data-accent="v">
+    <h2>Measured vs Known λ — All Elements</h2>
+    <p class="desc">Scatter with uncertainty bars. Diagonal = perfect agreement.</p>
+    <div class="graph-wrap" id="gw-gs-acc"><button class="dl" onclick="dlSVG('gw-gs-acc','accuracy_scatter')">☀ PNG</button></div>
+  </div>
+</div>
+
+<!-- ════════════════════ NOTES ════════════════════ -->
+<div id="notes" class="pnl">
+  <div class="card" data-accent="c">
+    <h2>Lab Notebook</h2>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn sm" onclick="saveAll()">Save</button>
+      <button class="btn sm" onclick="loadAll()">Load</button>
+      <button class="btn sm export" onclick="exportJSON()">Export JSON</button>
+      <button class="btn sm" onclick="document.getElementById('imp').click()" style="border-color:var(--cyan);color:var(--cyan)">Import JSON</button>
+      <input type="file" id="imp" accept=".json" style="display:none" onchange="importJSON(event)">
+    </div>
+    <label class="f">Notes</label>
+    <textarea class="f" id="lab-notes" placeholder="Observations, error sources, analysis..."></textarea>
+  </div>
+  <div class="card" data-accent="y">
+    <h2>Reference Wavelengths</h2>
+    <table class="dt"><thead><tr><th>Elem</th><th>Color</th><th>λ (nm)</th></tr></thead><tbody>
+      <tr><td>Hg</td><td><span class="sw" style="background:#cc66ff"></span>Violet</td><td>404.66</td></tr>
+      <tr><td>Hg</td><td><span class="sw" style="background:#5577ff"></span>Blue</td><td>435.83</td></tr>
+      <tr><td>Hg</td><td><span class="sw" style="background:#00ff88"></span>Green</td><td>546.07</td></tr>
+      <tr><td>Hg</td><td><span class="sw" style="background:#ffdd00"></span>Yellow</td><td>576.96 / 579.07</td></tr>
+      <tr><td>H</td><td><span class="sw" style="background:#ff3355"></span>H-α</td><td>656.28</td></tr>
+      <tr><td>H</td><td><span class="sw" style="background:#00ddcc"></span>H-β</td><td>486.13</td></tr>
+      <tr><td>H</td><td><span class="sw" style="background:#6644ff"></span>H-γ</td><td>434.05</td></tr>
+      <tr><td>H</td><td><span class="sw" style="background:#8833cc"></span>H-δ</td><td>410.17</td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG & KNOWN LINES
+// ══════════════════════════════════════════════════════
+const HG_LINES = [
+  {lam:404.66, label:'Violet', color:'#bb66ff'},
+  {lam:435.83, label:'Blue',   color:'#5577ff'},
+  {lam:546.07, label:'Green',  color:'#00e87b'},
+  {lam:576.96, label:'Yel 1',  color:'#ffd033'},
+  {lam:579.07, label:'Yel 2',  color:'#ffbb00'},
+];
+const BALMER = [
+  {ni:3, theory:656.28, id:'H-α', color:'#ff3e55'},
+  {ni:4, theory:486.13, id:'H-β', color:'#00d4c8'},
+  {ni:5, theory:434.05, id:'H-γ', color:'#4477ff'},
+  {ni:6, theory:410.17, id:'H-δ', color:'#9955ff'},
+];
+const KNOWN = {
+  Hydrogen:[{wl:410.17,id:'H-δ (6→2)'},{wl:434.05,id:'H-γ (5→2)'},{wl:486.13,id:'H-β (4→2)'},{wl:656.28,id:'H-α (3→2)'}],
+  Neon:[{wl:540.06,id:'Ne 540'},{wl:585.25,id:'Ne 585'},{wl:588.19,id:'Ne 588'},{wl:603,id:'Ne 603'},{wl:607.43,id:'Ne 607'},{wl:616.36,id:'Ne 616'},{wl:621.73,id:'Ne 622'},{wl:626.65,id:'Ne 627'},{wl:633.44,id:'Ne 633'},{wl:640.22,id:'Ne 640'},{wl:650.65,id:'Ne 651'},{wl:659.9,id:'Ne 660'},{wl:692.95,id:'Ne 693'},{wl:703.24,id:'Ne 703'}],
+  Mercury:[{wl:404.66,id:'Hg Violet'},{wl:435.83,id:'Hg Blue'},{wl:546.07,id:'Hg Green'},{wl:576.96,id:'Hg Yel₁'},{wl:579.07,id:'Hg Yel₂'}],
+  Krypton:[{wl:427.4,id:'Kr 427'},{wl:431.96,id:'Kr 432'},{wl:436.26,id:'Kr 436'},{wl:445.39,id:'Kr 445'},{wl:450.24,id:'Kr 450'},{wl:556.22,id:'Kr 556'},{wl:557.03,id:'Kr 557'},{wl:587.09,id:'Kr 587'}],
+  Helium:[{wl:447.15,id:'He 447'},{wl:471.31,id:'He 471'},{wl:492.19,id:'He 492'},{wl:501.57,id:'He 502'},{wl:504.77,id:'He 505'},{wl:587.56,id:'He D₃'},{wl:667.82,id:'He 668'},{wl:706.52,id:'He 707'}],
+};
+const ELEMS = ['Hydrogen','Neon','Mercury','Krypton','Helium'];
+const ECOL = {Hydrogen:'#ff3e55',Neon:'#ff7733',Mercury:'#00e87b',Krypton:'#bb66ff',Helium:'#ffd033'};
+const DT = 1/60*Math.PI/180; // ±1 arcmin in rad
+
+let hgData=[], balmerData=[], rydData=[], gsData=[], elemLines=[];
+
+// ══════════════════════════════════════════════════════
+//  UTILITIES
+// ══════════════════════════════════════════════════════
+function $(s){return document.getElementById(s)}
+function v(id){return parseFloat($(id).value)||0}
+
+function findClosest(lam,elem){
+  const ls=KNOWN[elem]||[];if(!ls.length)return null;
+  let b=ls[0],bd=Math.abs(lam-ls[0].wl);
+  ls.forEach(l=>{const d=Math.abs(lam-l.wl);if(d<bd){b=l;bd=d}});
+  return{wl:b.wl,id:b.id,err:(lam-b.wl)/b.wl*100};
+}
+
+function wlRGB(wl){
+  let r=0,g=0,b=0;
+  if(wl>=380&&wl<440){r=-(wl-440)/60;b=1}else if(wl>=440&&wl<490){g=(wl-440)/50;b=1}
+  else if(wl>=490&&wl<510){g=1;b=-(wl-510)/20}else if(wl>=510&&wl<580){r=(wl-510)/70;g=1}
+  else if(wl>=580&&wl<645){r=1;g=-(wl-645)/65}else if(wl>=645&&wl<=780)r=1;
+  let f=.3;if(wl>=380&&wl<420)f=.3+.7*(wl-380)/40;else if(wl<=700)f=1;else if(wl<=780)f=.3+.7*(780-wl)/80;
+  return`rgb(${r*f*255|0},${g*f*255|0},${b*f*255|0})`;
+}
+
+// ══════════════════════════════════════════════════════
+//  SVG GRAPH ENGINE
+// ══════════════════════════════════════════════════════
+function svg(w,h){return`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" font-family="'IBM Plex Mono',monospace">`}
+function svgEnd(){return'</svg>'}
+
+function dlSVG(wrId,filename){
+  const wr=$(wrId);const s=wr.querySelector('svg');if(!s)return;
+  // Clone SVG and set white background for export
+  const clone=s.cloneNode(true);
+  clone.querySelectorAll('[data-dk]').forEach(el=>{
+    const lt=el.getAttribute('data-lt');if(lt)el.setAttribute('fill',lt);
+  });
+  // Set bg rect white
+  const bgRect=clone.querySelector('.bg-rect');
+  if(bgRect)bgRect.setAttribute('fill','#ffffff');
+  // Swap dark colors to light
+  const svgStr=new XMLSerializer().serializeToString(clone)
+    .replace(/#07080e|#0d0f18|#0e0e18/g,'#ffffff')
+    .replace(/#d8dae8/g,'#1a1a1a')
+    .replace(/#8a8eb0/g,'#444466')
+    .replace(/#5c6080/g,'#777799')
+    .replace(/#232738|#2e3348/g,'#dddddd')
+    .replace(/#131620|#1a1d2a/g,'#f5f5f5')
+    .replace(/#00e87b/g,'#008844');
+  const canvas=document.createElement('canvas');
+  const ctx=canvas.getContext('2d');
+  const dpr=3;canvas.width=900*dpr;canvas.height=(h=>h*900/s.viewBox.baseVal.width)(s.viewBox.baseVal.height)*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const img=new Image();
+  const blob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  img.onload=()=>{ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(img,0,0,900,s.viewBox.baseVal.height*900/s.viewBox.baseVal.width);
+    URL.revokeObjectURL(url);
+    const a=document.createElement('a');a.download=filename+'.png';a.href=canvas.toDataURL('image/png');a.click()};
+  img.src=url;
+}
+
+// ══════════════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════════════
+document.querySelectorAll('nav button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.pnl').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');$(b.dataset.tab).classList.add('on');
+  });
+});
+
+// ══════════════════════════════════════════════════════
+//  HG CALIBRATION
+// ══════════════════════════════════════════════════════
+function initHg(){
+  const tb=$('hg-table').querySelector('tbody');
+  HG_LINES.forEach(l=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="sw" style="background:${l.color}"></span>${l.label}</td>
+      <td>${l.lam}</td>
+      <td><input class="hg-deg" data-lam="${l.lam}" type="number" step="0.5" placeholder="°"></td>
+      <td><input class="hg-min" type="number" step="1" value="0" placeholder="'"></td>
+      <td class="hg-th">—</td><td class="hg-dc">—</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function calcHg(){
+  const center=v('hg-center'),m=v('hg-order')||1;
+  hgData=[];let out='';
+  $('hg-table').querySelectorAll('tbody tr').forEach(row=>{
+    const deg=parseFloat(row.querySelector('.hg-deg').value);
+    const min=parseFloat(row.querySelector('.hg-min').value)||0;
+    const thC=row.querySelector('.hg-th'),dC=row.querySelector('.hg-dc');
+    const lam=parseFloat(row.querySelector('.hg-deg').dataset.lam);
+    if(isNaN(deg)){thC.textContent='—';dC.textContent='—';return}
+    const raw=deg+min/60, theta=Math.abs(center-raw);
+    const st=Math.sin(theta*Math.PI/180);
+    const d_nm=m*lam/st;
+    thC.textContent=theta.toFixed(3)+'°';dC.textContent=d_nm.toFixed(1);
+    hgData.push({lam,theta,sinTheta:st,d:d_nm,color:HG_LINES.find(h=>h.lam===lam)?.color||'#888'});
+    out+=`λ=${lam} → θ=${theta.toFixed(3)}° → d = <span class="v">${d_nm.toFixed(1)} nm</span>\n`;
+  });
+  if(!hgData.length){$('hg-out').innerHTML='<span class="w">No data.</span>';return}
+  $('hg-out').innerHTML=out;
+  const ds=hgData.map(h=>h.d),mn=ds.reduce((a,b)=>a+b,0)/ds.length;
+  const sd=Math.sqrt(ds.reduce((a,b)=>a+(b-mn)**2,0)/(ds.length-1||1));
+  const sm=sd/Math.sqrt(ds.length);
+  $('hg-d-mean').innerHTML=`<span class="v">${mn.toFixed(1)}</span> nm  (${(1e6/mn).toFixed(1)} lines/mm)`;
+  $('hg-d-std').innerHTML=`σ = <span class="v">${sd.toFixed(2)}</span>  /  σ_mean = <span class="v">${sm.toFixed(2)}</span> nm`;
+  // Auto-fill Balmer and Survey d
+  $('bal-d').value=mn.toFixed(1);$('gs-d').value=mn.toFixed(1);
+  drawHgSinLam();drawHgDBar();
+}
+
+function clearHg(){$('hg-table').querySelectorAll('input').forEach(i=>{if(i.type==='number'&&!i.dataset.lam)i.value='0';else if(!i.dataset.lam)i.value=''});hgData=[];$('hg-out').textContent='Cleared.'}
+
+// ── HG GRAPH: sin(θ) vs λ ──
+function drawHgSinLam(){
+  if(hgData.length<2)return;
+  const W=700,H=340,p={t:45,r:30,b:55,l:70};
+  const pw=W-p.l-p.r,ph=H-p.t-p.b;
+  const xs=hgData.map(h=>h.lam),ys=hgData.map(h=>h.sinTheta);
+  const xn=Math.min(...xs)-20,xx=Math.max(...xs)+20,yn=0,yx=Math.max(...ys)*1.15;
+  const xP=v=>p.l+(v-xn)/(xx-xn)*pw, yP=v=>p.t+ph-(v-yn)/(yx-yn)*ph;
+  // Regression
+  const n=xs.length,sx=xs.reduce((a,b)=>a+b,0),sy=ys.reduce((a,b)=>a+b,0);
+  const sxx=xs.reduce((a,b)=>a+b*b,0),sxy=xs.reduce((a,b,i)=>a+b*ys[i],0);
+  const sl=(n*sxy-sx*sy)/(n*sxx-sx*sx),ic=(sy-sl*sx)/n;
+  const m0=v('hg-order')||1, dfit=m0/sl;
+
+  let s=svg(W,H)+`<rect class="bg-rect" width="${W}" height="${H}" fill="#0e0e18"/>`;
+  // Title
+  s+=`<text x="${W/2}" y="20" text-anchor="middle" fill="#d8dae8" font-size="12" font-weight="600">sin(θ) vs λ — Grating Equation Linear Fit</text>`;
+  // Grid
+  for(let i=0;i<=5;i++){const y=p.t+ph*i/5;s+=`<line x1="${p.l}" y1="${y}" x2="${W-p.r}" y2="${y}" stroke="#1a1d2a" stroke-width="0.5"/>`}
+  // Fit line
+  s+=`<line x1="${xP(xn)}" y1="${yP(sl*xn+ic)}" x2="${xP(xx)}" y2="${yP(sl*xx+ic)}" stroke="#ff6666" stroke-width="2" stroke-dasharray="8 4" opacity="0.8"/>`;
+  // Points
+  hgData.forEach(h=>{
+    s+=`<circle cx="${xP(h.lam)}" cy="${yP(h.sinTheta)}" r="6" fill="${h.color}" stroke="#0e0e18" stroke-width="1.5"/>`;
+  });
+  // Axes
+  s+=`<line x1="${p.l}" y1="${H-p.b}" x2="${W-p.r}" y2="${H-p.b}" stroke="#2e3348" stroke-width="1"/>`;
+  s+=`<line x1="${p.l}" y1="${p.t}" x2="${p.l}" y2="${H-p.b}" stroke="#2e3348" stroke-width="1"/>`;
+  // Tick labels
+  for(let wl=400;wl<=600;wl+=50){if(wl>=xn&&wl<=xx)s+=`<text x="${xP(wl)}" y="${H-p.b+18}" text-anchor="middle" fill="#5c6080" font-size="10">${wl}</text>`}
+  for(let i=0;i<=5;i++){const vv=yn+(yx-yn)*(1-i/5);s+=`<text x="${p.l-8}" y="${p.t+ph*i/5+4}" text-anchor="end" fill="#5c6080" font-size="10">${vv.toFixed(3)}</text>`}
+  // Axis titles
+  s+=`<text x="${W/2}" y="${H-6}" text-anchor="middle" fill="#8a8eb0" font-size="11">Wavelength λ (nm)</text>`;
+  s+=`<text x="14" y="${H/2}" text-anchor="middle" fill="#8a8eb0" font-size="11" transform="rotate(-90 14 ${H/2})">sin(θ)</text>`;
+  // Fit annotation
+  s+=`<text x="${p.l+12}" y="${p.t+18}" fill="#ff6666" font-size="10">slope = ${sl.toExponential(4)}</text>`;
+  s+=`<text x="${p.l+12}" y="${p.t+32}" fill="#ff6666" font-size="10">d (fit) = ${dfit.toFixed(1)} nm</text>`;
+  s+=svgEnd();
+  $('gw-hg-sinlam').querySelector('svg')?.remove();
+  $('gw-hg-sinlam').insertAdjacentHTML('beforeend',s);
+}
+
+// ── HG GRAPH: d per line ──
+function drawHgDBar(){
+  if(!hgData.length)return;
+  const W=700,H=300,p={t:40,r:30,b:55,l:80};
+  const pw=W-p.l-p.r,ph=H-p.t-p.b;
+  const ds=hgData.map(h=>h.d),mn=ds.reduce((a,b)=>a+b,0)/ds.length;
+  const sd=Math.sqrt(ds.reduce((a,b)=>a+(b-mn)**2,0)/(ds.length-1||1));
+  const yn=mn-sd*4,yx=mn+sd*4;
+  const yP=vv=>p.t+ph-(vv-yn)/(yx-yn)*ph;
+  const bw=pw/hgData.length*.55;
+
+  let s=svg(W,H)+`<rect class="bg-rect" width="${W}" height="${H}" fill="#0e0e18"/>`;
+  s+=`<text x="${W/2}" y="20" text-anchor="middle" fill="#d8dae8" font-size="12" font-weight="600">Grating Spacing d per Hg Line</text>`;
+  // Band
+  s+=`<rect x="${p.l}" y="${yP(mn+sd)}" width="${pw}" height="${yP(mn-sd)-yP(mn+sd)}" fill="#00e87b" opacity="0.06"/>`;
+  // Mean line
+  s+=`<line x1="${p.l}" y1="${yP(mn)}" x2="${W-p.r}" y2="${yP(mn)}" stroke="#00e87b" stroke-width="1.5" stroke-dasharray="8 4"/>`;
+  // Bars
+  hgData.forEach((h,i)=>{
+    const x=p.l+(i+.5)/hgData.length*pw-bw/2;
+    const top=yP(h.d),base=yP(mn);
+    s+=`<rect x="${x}" y="${Math.min(top,base)}" width="${bw}" height="${Math.abs(top-base)}" fill="${h.color}" rx="1" opacity="0.85"/>`;
+    s+=`<circle cx="${x+bw/2}" cy="${top}" r="4" fill="${h.color}"/>`;
+    s+=`<text x="${x+bw/2}" y="${top-10}" text-anchor="middle" fill="#d8dae8" font-size="9">${h.d.toFixed(1)}</text>`;
+    s+=`<text x="${x+bw/2}" y="${H-p.b+16}" text-anchor="middle" fill="#5c6080" font-size="9">${h.lam}</text>`;
+  });
+  // Axes
+  s+=`<line x1="${p.l}" y1="${p.t}" x2="${p.l}" y2="${H-p.b}" stroke="#2e3348"/>`;
+  for(let i=0;i<=5;i++){const vv=yn+(yx-yn)*i/5;s+=`<text x="${p.l-8}" y="${yP(vv)+4}" text-anchor="end" fill="#5c6080" font-size="9">${vv.toFixed(1)}</text>`}
+  s+=`<text x="${W-p.r}" y="${yP(mn)-8}" text-anchor="end" fill="#00e87b" font-size="10">mean = ${mn.toFixed(1)} nm</text>`;
+  s+=`<text x="${W/2}" y="${H-6}" text-anchor="middle" fill="#8a8eb0" font-size="11">λ known (nm)</text>`;
+  s+=`<text x="14" y="${H/2}" text-anchor="middle" fill="#8a8eb0" font-size="11" transform="rotate(-90 14 ${H/2})">d (nm)</text>`;
+  s+=svgEnd();
+  $('gw-hg-dbar').querySelector('svg')?.remove();
+  $('gw-hg-dbar').insertAdjacentHTML('beforeend',s);
+}
+
+// ══════════════════════════════════════════════════════
+//  BALMER
+// ══════════════════════════════════════════════════════
+function initBalmer(){
+  const tb=$('bal-table').querySelector('tbody');
+  BALMER.forEach(b=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="sw" style="background:${b.color}"></span>${b.id}</td>
+      <td>${b.ni}</td><td>${b.theory}</td>
+      <td><input class="bal-deg" data-ni="${b.ni}" data-th="${b.theory}" type="number" step="0.5" placeholder="°"></td>
+      <td><input class="bal-min" type="number" step="1" value="0"></td>
+      <td class="bal-theta">—</td><td class="bal-lam">—</td><td class="bal-unc">—</td><td class="bal-err">—</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function calcBalmer(){
+  const d=v('bal-d'),center=v('bal-center'),m=v('bal-m')||1;
+  balmerData=[];let out='';
+  $('bal-table').querySelectorAll('tbody tr').forEach(row=>{
+    const deg=parseFloat(row.querySelector('.bal-deg').value);
+    const min=parseFloat(row.querySelector('.bal-min').value)||0;
+    const ni=parseInt(row.querySelector('.bal-deg').dataset.ni);
+    const theory=parseFloat(row.querySelector('.bal-deg').dataset.th);
+    const thC=row.querySelector('.bal-theta'),lC=row.querySelector('.bal-lam');
+    const uC=row.querySelector('.bal-unc'),eC=row.querySelector('.bal-err');
+    if(isNaN(deg)){thC.textContent=lC.textContent=uC.textContent=eC.textContent='—';return}
+    const raw=deg+min/60, theta=Math.abs(center-raw);
+    const thetaRad=theta*Math.PI/180;
+    const lam=d*Math.sin(thetaRad)/m;
+    const unc=Math.abs(d*Math.cos(thetaRad)/m*DT);
+    const pe=(lam-theory)/theory*100;
+    thC.textContent=theta.toFixed(3)+'°';lC.textContent=lam.toFixed(1);uC.textContent='±'+unc.toFixed(1);
+    const cls=Math.abs(pe)<1?'v':Math.abs(pe)<3?'w':'e';
+    eC.innerHTML=`<span class="${cls}">${pe>=0?'+':''}${pe.toFixed(2)}%</span>`;
+    const bLine=BALMER.find(b=>b.ni===ni);
+    balmerData.push({ni,theory,measured:lam,uncert:unc,pctErr:pe,id:bLine?.id,color:bLine?.color||'#888'});
+    out+=`${bLine?.id}: λ = ${lam.toFixed(1)} ± ${unc.toFixed(1)} nm, theory = ${theory}, err = <span class="${cls}">${pe.toFixed(2)}%</span>\n`;
+  });
+  $('bal-out').innerHTML=out||'<span class="w">No data.</span>';
+  drawBalCmp();drawBalErr();drawEnergy();
+}
+
+// ── BALMER GRAPH: Measured vs Theory ──
+function drawBalCmp(){
+  if(!balmerData.length)return;
+  const W=700,H=340,p={t:50,r:30,b:60,l:60};
+  const pw=W-p.l-p.r,ph=H-p.t-p.b;
+  const yn=370,yx=700,yP=vv=>p.t+ph-(vv-yn)/(yx-yn)*ph;
+  const gw=pw/balmerData.length,bw=gw*.22;
+
+  let s=svg(W,H)+`<rect class="bg-rect" width="${W}" height="${H}" fill="#0e0e18"/>`;
+  s+=`<text x="${W/2}" y="18" text-anchor="middle" fill="#d8dae8" font-size="12" font-weight="600">Measured vs Theoretical Wavelength</text>`;
+  s+=`<text x="${W/2}" y="34" text-anchor="middle" fill="#5c6080" font-size="9">Error bars: ±1 arcmin uncertainty propagation</text>`;
+  // Grid
+  for(let wl=400;wl<=700;wl+=50){const y=yP(wl);
+    s+=`<line x1="${p.l}" y1="${y}" x2="${W-p.r}" y2="${y}" stroke="#1a1d2a" stroke-width="0.5"/>`;
+    s+=`<text x="${p.l-8}" y="${y+4}" text-anchor="end" fill="#5c6080" font-size="9">${wl}</text>`}
+  // Bars
+  balmerData.forEach((b,i)=>{
+    const cx=p.l+(i+.5)*gw;
+    // Theory bar
+    s+=`<rect x="${cx-bw-3}" y="${yP(b.theory)}" width="${bw}" height="${yP(yn)-yP(b.theory)}" fill="#2e3348" rx="1"/>`;
+    // Measured bar
+    s+=`<rect x="${cx+3}" y="${yP(b.measured)}" width="${bw}" height="${yP(yn)-yP(b.measured)}" fill="${b.color}" rx="1" opacity="0.9"/>`;
+    // Error bar
+    if(b.uncert>0){
+      const yt=yP(b.measured+b.uncert),yb=yP(b.measured-b.uncert),ex=cx+3+bw/2;
+      s+=`<line x1="${ex}" y1="${yt}" x2="${ex}" y2="${yb}" stroke="#d8dae8" stroke-width="1.5"/>`;
+      s+=`<line x1="${ex-5}" y1="${yt}" x2="${ex+5}" y2="${yt}" stroke="#d8dae8" stroke-width="1.5"/>`;
+      s+=`<line x1="${ex-5}" y1="${yb}" x2="${ex+5}" y2="${yb}" stroke="#d8dae8" stroke-width="1.5"/>`;
+    }
+    // Values
+    s+=`<text x="${cx-bw/2-3}" y="${yP(b.theory)-6}" text-anchor="middle" fill="#5c6080" font-size="8">${b.theory.toFixed(0)}</text>`;
+    s+=`<text x="${cx+bw/2+3}" y="${yP(b.measured)-6}" text-anchor="middle" fill="${b.color}" font-size="8">${b.measured.toFixed(1)}</text>`;
+    // Label
+    s+=`<text x="${cx}" y="${H-p.b+18}" text-anchor="middle" fill="#8a8eb0" font-size="10">${b.id}</text>`;
+    s+=`<text x="${cx}" y="${H-p.b+30}" text-anchor="middle" fill="#5c6080" font-size="8">n=${b.ni}</text>`;
+  });
+  // Legend
+  const lx=W-p.r-140,ly=p.t+4;
+  s+=`<rect x="${lx}" y="${ly}" width="10" height="10" fill="#2e3348" rx="1"/><text x="${lx+14}" y="${ly+9}" fill="#5c6080" font-size="9">Theory</text>`;
+  s+=`<rect x="${lx}" y="${ly+16}" width="10" height="10" fill="#00d4c8" rx="1"/><text x="${lx+14}" y="${ly+25}" fill="#5c6080" font-size="9">Measured ± δλ</text>`;
+  // Axes
+  s+=`<line x1="${p.l}" y1="${p.t}" x2="${p.l}" y2="${H-p.b}" stroke="#2e3348"/>`;
+  s+=`<text x="14" y="${H/2}" text-anchor="middle" fill="#8a8eb0" font-size="11" transform="rotate(-90 14 ${H/2})">λ (nm)</text>`;
+  s+=svgEnd();
+  $('gw-bal-cmp').querySelector('svg')?.remove();
+  $('gw-bal-cmp').insertAdjacentHTML('beforeend',s);
+}
+
+// ── BALMER GRAPH: % Error ──
+function drawBalErr(){
+  if(!balmerData.length)return;
+  const W=700,H=280,p={t:40,r:30,b:50,l:60};
+  const pw=W-p.l-p.r,ph=H-p.t-p.b;
+  const mx=Math.max(...balmerData.map(b=>Math.abs(b.pctErr)+b.uncert/b.theory*100),.5)*1.4;
+  const yP=vv=>p.t+ph/2-vv/mx*ph/2;
+  const bw=pw/balmerData.length*.4;
+
+  let s=svg(W,H)+`<rect class="bg-rect" width="${W}" height="${H}" fill="#0e0e18"/>`;
+  s+=`<text x="${W/2}" y="20" text-anchor="middle" fill="#d8dae8" font-size="12" font-weight="600">Percent Error by Balmer Line</text>`;
+  // Zero line
+  s+=`<line x1="${p.l}" y1="${yP(0)}" x2="${W-p.r}" y2="${yP(0)}" stroke="#2e3348" stroke-width="1.5"/>`;
+  balmerData.forEach((b,i)=>{
+    const cx=p.l+(i+.5)/balmerData.length*pw;
+    const top=yP(b.pctErr),base=yP(0);
+    s+=`<rect x="${cx-bw/2}" y="${Math.min(top,base)}" width="${bw}" height="${Math.abs(top-base)}" fill="${b.color}" rx="1" opacity="0.85"/>`;
+    // Error whisker from uncertainty
+    const ue=b.uncert/b.theory*100;
+    const et=yP(b.pctErr+ue),eb=yP(b.pctErr-ue);
+    s+=`<line x1="${cx}" y1="${et}" x2="${cx}" y2="${eb}" stroke="#d8dae8" stroke-width="1.5"/>`;
+    s+=`<line x1="${cx-4}" y1="${et}" x2="${cx+4}" y2="${et}" stroke="#d8dae8" stroke-width="1.5"/>`;
+    s+=`<line x1="${cx-4}" y1="${eb}" x2="${cx+4}" y2="${eb}" stroke="#d8dae8" stroke-width="1.5"/>`;
+    // Value
+    const vy=b.pctErr>=0?top-10:top+Math.abs(top-base)+14;
+    s+=`<text x="${cx}" y="${vy}" text-anchor="middle" fill="#d8dae8" font-size="9">${b.pctErr>=0?'+':''}${b.pctErr.toFixed(2)}%</text>`;
+    s+=`<text x="${cx}" y="${H-p.b+16}" text-anchor="middle" fill="#8a8eb0" font-size="10">${b.id}</text>`;
+  });
+  s+=`<line x1="${p.l}" y1="${p.t}" x2="${p.l}" y2="${H-p.b}" stroke="#2e3348"/>`;
+  s+=`<text x="14" y="${H/2}" text-anchor="middle" fill="#8a8eb0" font-size="11" transform="rotate(-90 14 ${H/2})">% Error</text>`;
+  s+=svgEnd();
+  $('gw-bal-err').querySelector('svg')?.remove();
+  $('gw-bal-err').insertAdjacentHTML('beforeend',s);
+}
+
+// ── ENERGY LEVEL DIAGRAM ──
+function drawEnergy(){
+  const W=700,H=320,E=n=>-13.6/(n*n);
+  const yS=e=>40+(H-70)*(1-(e-E(1))/(0-E(1)));
+  let s=svg(W,H)+`<rect class="bg-rect" width="${W}" height="${H}" fill="#0e0e18"/>`;
+  [1,2,3,4,5,6].forEach(n=>{
+    const y=yS(E(n));
+    s+=`<line x1="80" y1="${y}" x2="${W-40}" y2="${y}" stroke="#232738" stroke-width="1"/>`;
+    s+=`<text x="70" y="${y+4}" text-anchor="end" fill="#5c6080" font-size="11">n = ${n}</text>`;
+    s+=`<text x="${W-35}" y="${y+4}" text-anchor="start" fill="#5c6080" font-size="10">${E(n).toFixed(2)} eV</text>`;
+  });
+  [{ni:3,c:'#ff3e55',l:'H-α 656nm',x:180},{ni:4,c:'#00d4c8',l:'H-β 486nm',x:280},
+   {ni:5,c:'#4477ff',l:'H-γ 434nm',x:380},{ni:6,c:'#9955ff',l:'H-δ 410nm',x:460}].forEach(t=>{
+    const y1=yS(E(t.ni)),y2=yS(E(2));
+    s+=`<line x1="${t.x}" y1="${y1}" x2="${t.x}" y2="${y2}" stroke="${t.c}" stroke-width="2.5"/>`;
+    s+=`<polygon points="${t.x-5},${y2-10} ${t.x+5},${y2-10} ${t.x},${y2-2}" fill="${t.c}"/>`;
+    s+=`<text x="${t.x}" y="${y1-8}" text-anchor="middle" fill="${t.c}" font-size="9">${t.l}</text>`;
+  });
+  s+=`<text x="${W/2}" y="${H-8}" text-anchor="middle" fill="#5c6080" font-size="10">Hydrogen Energy Levels — Balmer Series (nf = 2)</text>`;
+  s+=svgEnd();
+  $('gw-energy').querySelector('svg')?.remove();
+  $('gw-energy').insertAdjacentHTML('beforeend',s);
+}
+
+// ══════════════════════════════════════════════════════
+//  RYDBERG
+// ══════════════════════════════════════════════════════
+function calcRydberg(){
+  if(!balmerData.length){$('ryd-out').innerHTML='<span class="w">Run Balmer analysis first.</span>';return}
+  const RHa=1.0968e7;rydData=[];let out='';
+  balmerData.forEach(b=>{
+    const RH=(1/(b.measured*1e-9))/(1/4-1/(b.ni*b.ni));
+    const pe=(RH-RHa)/RHa*100;
+    rydData.push({ni:b.ni,RH,lam:b.measured,uncert:b.uncert,id:b.id,color:b.color});
+    out+=`${b.id}: R_H = <span class="v">${RH.toExponential(5)}</span> m⁻¹ (${pe>=0?'+':''}${pe.toFixed(3)}%)\n`;
+  });
+  const vs=rydData.map(r=>r.RH),mn=vs.reduce((a,b)=>a+b,0)/vs.length;
+  const sd=Math.sqrt(vs.reduce((a,b)=>a+(b-mn)**2,0)/(vs.length-1||1));
+  out+=`\n<span class="v">Mean R_H = ${mn.toExponential(5)} m⁻¹</span>\nσ = ${sd.toExponential(3)}\n`;
+  out+=`Accepted = ${RHa.toExponential(4)} m⁻¹\nOverall error: <span class="${Math.abs((mn-RHa)/RHa*100)<2?'v':'w'}">${((mn-RHa)/RHa*100).toFixed(3)}%</span>`;
+  $('ryd-out').innerHTML=out;
+  drawRydLin();
+}
+
+function drawRydLin(){
+  if(rydData.length<2)return;
+  const W=700,H=360,p={t:50,r:30,b:55,l:90};
+  const pw=W-p.l-p.r,ph=H-p.t-p.b;
+  const pts=rydData.map(r=>{
+    const ni=r.ni,bracket=1/4-1/(ni*ni),invLam=1/(r.lam*1e-9);
+    const invUncert=r.uncert/(r.lam*r.lam*1e-9)*r.lam;
+    return{x:bracket,y:invLam,yErr:Math.abs(invUncert*1e4),ni,color:r.color,id:r.id};
+  }).sort((a,b)=>a.x-b.x);
+  const sxy=pts.reduce((a,p)=>a+p.x*p.y,0),sxx=pts.reduce((a,p)=>a+p.x*p.x,0);
+  const slope=sxy/sxx;
+  const xMax=Math.max(...pts.map(p=>p.x))*1.15,yMax=Math.max(...pts.map(p=>p.y))*1.15;
+  const xP=vv=>p.l+vv/xMax*pw, yP=vv=>p.t+ph-vv/yMax*ph;
+
+  let s=svg(W,H)+`<rect class="bg-rect" width="${W}" height="${H}" fill="#0e0e18"/>`;
+  s+=`<text x="${W/2}" y="18" text-anchor="middle" fill="#d8dae8" font-size="12" font-weight="600">1/λ vs (1/4 − 1/nᵢ²) — Slope = R_H</text>`;
+  s+=`<text x="${W/2}" y="34" text-anchor="middle" fill="#5c6080" font-size="9">Regression through origin with ±1 arcmin uncertainty</text>`;
+  // Grid
+  for(let i=0;i<=5;i++){const y=p.t+ph*i/5;s+=`<line x1="${p.l}" y1="${y}" x2="${W-p.r}" y2="${y}" stroke="#1a1d2a" stroke-width="0.5"/>`}
+  // Fit line
+  s+=`<line x1="${xP(0)}" y1="${yP(0)}" x2="${xP(xMax)}" y2="${yP(slope*xMax)}" stroke="#ff6666" stroke-width="2" stroke-dasharray="8 4" opacity="0.8"/>`;
+  // Points with error bars
+  pts.forEach(pt=>{
+    s+=`<line x1="${xP(pt.x)}" y1="${yP(pt.y-pt.yErr)}" x2="${xP(pt.x)}" y2="${yP(pt.y+pt.yErr)}" stroke="#d8dae8" stroke-width="1.5"/>`;
+    s+=`<line x1="${xP(pt.x)-4}" y1="${yP(pt.y+pt.yErr)}" x2="${xP(pt.x)+4}" y2="${yP(pt.y+pt.yErr)}" stroke="#d8dae8" stroke-width="1.5"/>`;
+    s+=`<line x1="${xP(pt.x)-4}" y1="${yP(pt.y-pt.yErr)}" x2="${xP(pt.x)+4}" y2="${yP(pt.y-pt.yErr)}" stroke="#d8dae8" stroke-width="1.5"/>`;
+    s+=`<circle cx="${xP(pt.x)}" cy="${yP(pt.y)}" r="6" fill="${pt.color}" stroke="#0e0e18" stroke-width="1.5"/>`;
+    s+=`<text x="${xP(pt.x)+10}" y="${yP(pt.y)+4}" fill="#5c6080" font-size="9">n=${pt.ni}</text>`;
+  });
+  // Axes
+  s+=`<line x1="${p.l}" y1="${p.t}" x2="${p.l}" y2="${H-p.b}" stroke="#2e3348"/>`;
+  s+=`<line x1="${p.l}" y1="${H-p.b}" x2="${W-p.r}" y2="${H-p.b}" stroke="#2e3348"/>`;
+  // Ticks
+  for(let i=1;i<=4;i++){const vv=xMax*i/5;s+=`<text x="${xP(vv)}" y="${H-p.b+16}" text-anchor="middle" fill="#5c6080" font-size="9">${vv.toFixed(4)}</text>`}
+  for(let i=0;i<=5;i++){const vv=yMax*(1-i/5);s+=`<text x="${p.l-8}" y="${p.t+ph*i/5+4}" text-anchor="end" fill="#5c6080" font-size="8">${(vv/1e6).toFixed(2)}M</text>`}
+  s+=`<text x="${W/2}" y="${H-6}" text-anchor="middle" fill="#8a8eb0" font-size="11">(1/4 − 1/nᵢ²)</text>`;
+  s+=`<text x="14" y="${H/2}" text-anchor="middle" fill="#8a8eb0" font-size="11" transform="rotate(-90 14 ${H/2})">1/λ (m⁻¹)</text>`;
+  // Annotation
+  const RHa=1.0968e7,err=(slope-RHa)/RHa*100;
+  s+=`<text x="${p.l+12}" y="${p.t+18}" fill="#ff6666" font-size="10">slope = R_H = ${slope.toExponential(5)} m⁻¹</text>`;
+  s+=`<text x="${p.l+12}" y="${p.t+32}" fill="#ff6666" font-size="10">(${err>=0?'+':''}${err.toFixed(3)}% from accepted)</text>`;
+  s+=svgEnd();
+  $('gw-ryd-lin').querySelector('svg')?.remove();
+  $('gw-ryd-lin').insertAdjacentHTML('beforeend',s);
+}
+
+// ══════════════════════════════════════════════════════
+//  GAS SURVEY
+// ══════════════════════════════════════════════════════
+function initSurvey(){
+  const wrap=$('gs-elements');
+  const accents={Hydrogen:'r',Neon:'y',Mercury:'g',Krypton:'v',Helium:'y'};
+  const rowCounts={Hydrogen:4,Neon:7,Mercury:5,Krypton:7,Helium:7};
+  ELEMS.forEach(elem=>{
+    let html=`<div class="card" data-accent="${accents[elem]}"><h2 style="color:${ECOL[elem]}">${elem}</h2>
+      <table class="dt gs-tbl" data-elem="${elem}"><thead><tr><th>Color</th><th>Deg</th><th>Min</th><th>θ</th><th>λ (nm)</th><th>± δλ</th><th>Likely ID</th><th>Err</th></tr></thead><tbody>`;
+    for(let i=0;i<rowCounts[elem];i++){
+      html+=`<tr><td><input class="gs-col" type="text" placeholder="color" style="width:55px"></td>
+        <td><input class="gs-deg" type="number" step="0.5" placeholder="°" style="width:50px"></td>
+        <td><input class="gs-min" type="number" step="1" value="0" style="width:38px"></td>
+        <td class="gs-th">—</td><td class="gs-lm">—</td><td class="gs-un">—</td><td class="gs-id" style="font-size:10px">—</td><td class="gs-er" style="font-size:10px">—</td></tr>`;
+    }
+    html+=`</tbody></table><button class="btn sm" onclick="addGsRow('${elem}')">+ Row</button></div>`;
+    wrap.insertAdjacentHTML('beforeend',html);
+  });
+}
+
+function addGsRow(elem){
+  const tb=document.querySelector(`.gs-tbl[data-elem="${elem}"] tbody`);
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><input class="gs-col" type="text" placeholder="color" style="width:55px"></td>
+    <td><input class="gs-deg" type="number" step="0.5" placeholder="°" style="width:50px"></td>
+    <td><input class="gs-min" type="number" step="1" value="0" style="width:38px"></td>
+    <td class="gs-th">—</td><td class="gs-lm">—</td><td class="gs-un">—</td><td class="gs-id" style="font-size:10px">—</td><td class="gs-er" style="font-size:10px">—</td>`;
+  tb.appendChild(tr);
+}
+
+function calcSurvey(){
+  const d=v('gs-d'),center=v('gs-center'),m=v('gs-m')||1;
+  gsData=[];let out='';
+  ELEMS.forEach(elem=>{
+    const tbl=document.querySelector(`.gs-tbl[data-elem="${elem}"]`);
+    tbl.querySelectorAll('tbody tr').forEach(row=>{
+      const deg=parseFloat(row.querySelector('.gs-deg').value);
+      const min=parseFloat(row.querySelector('.gs-min').value)||0;
+      if(isNaN(deg)){['gs-th','gs-lm','gs-un','gs-id','gs-er'].forEach(c=>row.querySelector('.'+c).textContent='—');return}
+      const raw=deg+min/60, theta=Math.abs(center-raw);
+      const thetaRad=theta*Math.PI/180;
+      const lam=d*Math.sin(thetaRad)/m;
+      const unc=Math.abs(d*Math.cos(thetaRad)/m*DT);
+      row.querySelector('.gs-th').textContent=theta.toFixed(3)+'°';
+      row.querySelector('.gs-lm').textContent=lam.toFixed(1);
+      row.querySelector('.gs-un').textContent='±'+unc.toFixed(1);
+      const c=findClosest(lam,elem);
+      if(c){
+        const cls=Math.abs(c.err)<2?'v':Math.abs(c.err)<5?'w':'e';
+        row.querySelector('.gs-id').innerHTML=`<span class="${cls}">${c.id}</span>`;
+        row.querySelector('.gs-er').innerHTML=`<span class="${cls}">${c.err>=0?'+':''}${c.err.toFixed(1)}%</span>`;
+      }
+      gsData.push({elem,color:row.querySelector('.gs-col').value,theta,lam,unc,known:c?.wl,knownId:c?.id,err:c?.err});
+    });
+  });
+  if(!gsData.length){$('gs-out').innerHTML='<span class="w">No data.</span>';return}
+  out+=`<span class="v">${gsData.length} lines across ${[...new Set(gsData.map(g=>g.elem))].length} elements</span>\n\n`;
+  ELEMS.forEach(elem=>{
+    const ls=gsData.filter(g=>g.elem===elem);if(!ls.length)return;
+    out+=`<span class="v">${elem}</span>:\n`;
+    ls.forEach(l=>{const tag=l.knownId?` → ${l.knownId} (${l.err>=0?'+':''}${l.err.toFixed(1)}%)`:'';
+      out+=`  ${(l.color||'?').padEnd(8)} θ=${l.theta.toFixed(2)}° → λ = ${l.lam.toFixed(1)} ± ${l.unc.toFixed(1)} nm${tag}\n`});out+='\n'});
+  $('gs-out').innerHTML=out;
+  drawGsSpec();drawGsAcc();
+}
+
+function clearSurvey(){if(!confirm('Clear all?'))return;document.querySelectorAll('.gs-tbl input').forEach(i=>{if(i.type==='number'&&!i.classList.contains('gs-deg'))i.value='0';else i.value=''});gsData=[];$('gs-out').textContent='Cleared.'}
+
+// ── GAS SURVEY GRAPH: Comparative spectra ──
+function drawGsSpec(){
+  if(!gsData.length)return;
+  const elems=ELEMS.filter(e=>gsData.some(g=>g.elem===e));
+  const W=700,rowH=44,H=elems.length*rowH+75,p={t:35,r:20,b:35,l:55};
+  const pw=W-p.l-p.r;const xP=wl=>p.l+(wl-380)/370*pw;
+
+  let s=svg(W,H)+`<rect class="bg-rect" width="${W}" height="${H}" fill="#0e0e18"/>`;
+  s+=`<text x="${W/2}" y="18" text-anchor="middle" fill="#d8dae8" font-size="12" font-weight="600">Comparative Emission Spectra</text>`;
+  // Ticks
+  for(let wl=400;wl<=750;wl+=50){
+    s+=`<line x1="${xP(wl)}" y1="${p.t}" x2="${xP(wl)}" y2="${H-p.b}" stroke="#1a1d2a" stroke-width="0.5"/>`;
+    s+=`<text x="${xP(wl)}" y="${H-p.b+16}" text-anchor="middle" fill="#5c6080" font-size="9">${wl}</text>`}
+  // Lanes
+  elems.forEach((elem,ei)=>{
+    const yTop=p.t+ei*rowH,yBot=yTop+rowH;
+    s+=`<text x="${p.l-6}" y="${(yTop+yBot)/2+3}" text-anchor="end" fill="${ECOL[elem]}" font-size="9" font-weight="600">${elem.slice(0,3)}</text>`;
+    if(ei>0)s+=`<line x1="${p.l}" y1="${yTop}" x2="${W-p.r}" y2="${yTop}" stroke="#1a1d2a" stroke-width="0.5"/>`;
+    // Known (dashed)
+    (KNOWN[elem]||[]).forEach(kl=>{if(kl.wl<380||kl.wl>750)return;
+      s+=`<line x1="${xP(kl.wl)}" y1="${yTop+4}" x2="${xP(kl.wl)}" y2="${yBot-4}" stroke="#232738" stroke-width="1" stroke-dasharray="2 3"/>`});
+    // Measured (spectral glow)
+    gsData.filter(g=>g.elem===elem).forEach(d=>{if(d.lam<380||d.lam>750)return;
+      const clr=wlRGB(d.lam);
+      s+=`<line x1="${xP(d.lam)}" y1="${yTop+6}" x2="${xP(d.lam)}" y2="${yBot-6}" stroke="${clr}" stroke-width="2.5"/>`;
+      s+=`<text x="${xP(d.lam)}" y="${yTop+2}" text-anchor="middle" fill="#5c6080" font-size="7">${Math.round(d.lam)}</text>`});
+  });
+  s+=`<text x="${W/2}" y="${H-4}" text-anchor="middle" fill="#8a8eb0" font-size="10">Wavelength (nm)</text>`;
+  s+=svgEnd();
+  $('gw-gs-spec').querySelector('svg')?.remove();
+  $('gw-gs-spec').insertAdjacentHTML('beforeend',s);
+}
+
+// ── GAS SURVEY GRAPH: Accuracy scatter ──
+function drawGsAcc(){
+  const pts=gsData.filter(g=>g.known);if(!pts.length)return;
+  const W=700,H=400,p={t:45,r:30,b:55,l:65};
+  const pw=W-p.l-p.r,ph=H-p.t-p.b;
+  const all=[...pts.map(g=>g.lam),...pts.map(g=>g.known)];
+  const mn=Math.min(...all)-25,mx=Math.max(...all)+25;
+  const xP=vv=>p.l+(vv-mn)/(mx-mn)*pw,yP=vv=>p.t+ph-(vv-mn)/(mx-mn)*ph;
+
+  let s=svg(W,H)+`<rect class="bg-rect" width="${W}" height="${H}" fill="#0e0e18"/>`;
+  s+=`<text x="${W/2}" y="18" text-anchor="middle" fill="#d8dae8" font-size="12" font-weight="600">Measured vs Known λ — All Elements</text>`;
+  s+=`<text x="${W/2}" y="34" text-anchor="middle" fill="#5c6080" font-size="9">Diagonal = perfect agreement. Error bars: ±1 arcmin.</text>`;
+  // Grid
+  for(let wl=Math.ceil(mn/100)*100;wl<=mx;wl+=100){
+    s+=`<line x1="${xP(wl)}" y1="${p.t}" x2="${xP(wl)}" y2="${H-p.b}" stroke="#1a1d2a" stroke-width="0.5"/>`;
+    s+=`<line x1="${p.l}" y1="${yP(wl)}" x2="${W-p.r}" y2="${yP(wl)}" stroke="#1a1d2a" stroke-width="0.5"/>`;
+    s+=`<text x="${xP(wl)}" y="${H-p.b+16}" text-anchor="middle" fill="#5c6080" font-size="9">${wl}</text>`;
+    s+=`<text x="${p.l-8}" y="${yP(wl)+4}" text-anchor="end" fill="#5c6080" font-size="9">${wl}</text>`}
+  // Diagonal
+  s+=`<line x1="${xP(mn)}" y1="${yP(mn)}" x2="${xP(mx)}" y2="${yP(mx)}" stroke="#3a3d50" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+  // Points with error bars
+  pts.forEach(g=>{
+    // Error bar
+    if(g.unc>0){
+      s+=`<line x1="${xP(g.known)}" y1="${yP(g.lam-g.unc)}" x2="${xP(g.known)}" y2="${yP(g.lam+g.unc)}" stroke="${ECOL[g.elem]}" stroke-width="1" opacity="0.5"/>`;
+      s+=`<line x1="${xP(g.known)-3}" y1="${yP(g.lam+g.unc)}" x2="${xP(g.known)+3}" y2="${yP(g.lam+g.unc)}" stroke="${ECOL[g.elem]}" stroke-width="1" opacity="0.5"/>`;
+      s+=`<line x1="${xP(g.known)-3}" y1="${yP(g.lam-g.unc)}" x2="${xP(g.known)+3}" y2="${yP(g.lam-g.unc)}" stroke="${ECOL[g.elem]}" stroke-width="1" opacity="0.5"/>`}
+    s+=`<circle cx="${xP(g.known)}" cy="${yP(g.lam)}" r="5" fill="${ECOL[g.elem]}" stroke="#0e0e18" stroke-width="1.2"/>`});
+  // Legend
+  let lx=W-p.r-90,ly=p.t+8;
+  ELEMS.forEach(e=>{if(!pts.some(g=>g.elem===e))return;
+    s+=`<circle cx="${lx}" cy="${ly+4}" r="4" fill="${ECOL[e]}"/><text x="${lx+10}" y="${ly+8}" fill="#5c6080" font-size="9">${e.slice(0,3)}</text>`;ly+=16});
+  s+=`<text x="${W/2}" y="${H-6}" text-anchor="middle" fill="#8a8eb0" font-size="11">Known λ (nm)</text>`;
+  s+=`<text x="14" y="${H/2}" text-anchor="middle" fill="#8a8eb0" font-size="11" transform="rotate(-90 14 ${H/2})">Measured λ (nm)</text>`;
+  s+=svgEnd();
+  $('gw-gs-acc').querySelector('svg')?.remove();
+  $('gw-gs-acc').insertAdjacentHTML('beforeend',s);
+}
+
+// ══════════════════════════════════════════════════════
+//  SAVE / LOAD
+// ══════════════════════════════════════════════════════
+function gatherAll(){
+  const hg=[],bal=[],gs={};
+  $('hg-table').querySelectorAll('tbody tr').forEach(r=>hg.push({deg:r.querySelector('.hg-deg').value,min:r.querySelector('.hg-min').value}));
+  $('bal-table').querySelectorAll('tbody tr').forEach(r=>bal.push({deg:r.querySelector('.bal-deg').value,min:r.querySelector('.bal-min').value}));
+  ELEMS.forEach(e=>{gs[e]=[];document.querySelector(`.gs-tbl[data-elem="${e}"]`).querySelectorAll('tbody tr').forEach(r=>{
+    gs[e].push({col:r.querySelector('.gs-col').value,deg:r.querySelector('.gs-deg').value,min:r.querySelector('.gs-min').value})})});
+  return{hgCenter:$('hg-center').value,hgOrder:$('hg-order').value,hg,balD:$('bal-d').value,balCenter:$('bal-center').value,balM:$('bal-m').value,bal,
+    gsD:$('gs-d').value,gsCenter:$('gs-center').value,gsM:$('gs-m').value,gs,notes:$('lab-notes').value,t:new Date().toISOString()};
+}
+function saveAll(){localStorage.setItem('spectro3',JSON.stringify(gatherAll()));alert('Saved.')}
+function loadAll(){const r=localStorage.getItem('spectro3');if(!r){alert('No saved data.');return}restoreAll(JSON.parse(r));alert('Loaded.')}
+function restoreAll(d){
+  if(d.hgCenter)$('hg-center').value=d.hgCenter;if(d.hgOrder)$('hg-order').value=d.hgOrder;
+  $('hg-table').querySelectorAll('tbody tr').forEach((r,i)=>{if(d.hg&&d.hg[i]){r.querySelector('.hg-deg').value=d.hg[i].deg;r.querySelector('.hg-min').value=d.hg[i].min}});
+  if(d.balD)$('bal-d').value=d.balD;if(d.balCenter)$('bal-center').value=d.balCenter;if(d.balM)$('bal-m').value=d.balM;
+  $('bal-table').querySelectorAll('tbody tr').forEach((r,i)=>{if(d.bal&&d.bal[i]){r.querySelector('.bal-deg').value=d.bal[i].deg;r.querySelector('.bal-min').value=d.bal[i].min}});
+  if(d.gsD)$('gs-d').value=d.gsD;if(d.gsCenter)$('gs-center').value=d.gsCenter;if(d.gsM)$('gs-m').value=d.gsM;
+  if(d.gs){ELEMS.forEach(e=>{const rows=document.querySelector(`.gs-tbl[data-elem="${e}"]`).querySelectorAll('tbody tr');
+    (d.gs[e]||[]).forEach((rd,i)=>{if(i>=rows.length)addGsRow(e);const row=document.querySelector(`.gs-tbl[data-elem="${e}"]`).querySelectorAll('tbody tr')[i];
+      if(row){row.querySelector('.gs-col').value=rd.col||'';row.querySelector('.gs-deg').value=rd.deg||'';row.querySelector('.gs-min').value=rd.min||'0'}})})}
+  $('lab-notes').value=d.notes||'';
+}
+function exportJSON(){const d=gatherAll();d.by=prompt('Your name:','')||'anon';const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`spectro_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(u)}
+function importJSON(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!confirm(`Import from "${d.by||'?'}"?`))return;restoreAll(d);calcHg();calcBalmer();calcSurvey();alert('Done.')}catch(er){alert('Bad JSON: '+er.message)}};r.readAsText(f);ev.target.value=''}
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+initHg();initBalmer();initSurvey();drawEnergy();
+if(localStorage.getItem('spectro3'))loadAll();
+</script>
+</body>
+</html>

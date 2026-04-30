@@ -1,0 +1,215 @@
+{
+  "hgCenter": "130",
+  "hgOrder": "1",
+  "hg": [
+    {
+      "deg": "",
+      "min": ""
+    },
+    {
+      "deg": "114.5",
+      "min": "11"
+    },
+    {
+      "deg": "110.5",
+      "min": "19"
+    },
+    {
+      "deg": "109.5",
+      "min": "11"
+    },
+    {
+      "deg": "109.5",
+      "min": "5"
+    }
+  ],
+  "balD": "1658.4",
+  "balCenter": "130",
+  "balM": "1",
+  "bal": [
+    {
+      "deg": "106.5",
+      "min": "20"
+    },
+    {
+      "deg": "113",
+      "min": "0"
+    },
+    {
+      "deg": "113.5",
+      "min": "21"
+    },
+    {
+      "deg": "114.5",
+      "min": "15"
+    }
+  ],
+  "gsD": "1658.4",
+  "gsCenter": "130",
+  "gsM": "1",
+  "gs": {
+    "Hydrogen": [
+      {
+        "col": "Indigo",
+        "deg": "114.5",
+        "min": "15"
+      },
+      {
+        "col": "Blue",
+        "deg": "113",
+        "min": "0"
+      },
+      {
+        "col": "Red",
+        "deg": "106.5",
+        "min": "20"
+      },
+      {
+        "col": "Blue",
+        "deg": "113.5",
+        "min": "21"
+      }
+    ],
+    "Neon": [
+      {
+        "col": "Cyan",
+        "deg": "113",
+        "min": "0"
+      },
+      {
+        "col": "Green",
+        "deg": "110.5",
+        "min": "0"
+      },
+      {
+        "col": "Yellow",
+        "deg": "109",
+        "min": "24"
+      },
+      {
+        "col": "Yellow",
+        "deg": "108",
+        "min": "19"
+      },
+      {
+        "col": "Orange",
+        "deg": "107",
+        "min": "26"
+      },
+      {
+        "col": "Red",
+        "deg": "107",
+        "min": "14"
+      },
+      {
+        "col": "Red",
+        "deg": "107",
+        "min": "0"
+      }
+    ],
+    "Mercury": [
+      {
+        "col": "Blue",
+        "deg": "114.5",
+        "min": "11"
+      },
+      {
+        "col": "Green",
+        "deg": "110.5",
+        "min": "19"
+      },
+      {
+        "col": "Yellow",
+        "deg": "109.5",
+        "min": "11"
+      },
+      {
+        "col": "Yellow",
+        "deg": "109.5",
+        "min": "5"
+      },
+      {
+        "col": "Red",
+        "deg": "105",
+        "min": "14"
+      }
+    ],
+    "Krypton": [
+      {
+        "col": "Purple",
+        "deg": "115",
+        "min": "0"
+      },
+      {
+        "col": "Purple",
+        "deg": "114.5",
+        "min": "18"
+      },
+      {
+        "col": "Purple",
+        "deg": "114.5",
+        "min": "10"
+      },
+      {
+        "col": "Purple",
+        "deg": "114.5",
+        "min": "0"
+      },
+      {
+        "col": "Purple",
+        "deg": "114",
+        "min": "12"
+      },
+      {
+        "col": "Green",
+        "deg": "110.5",
+        "min": "0"
+      },
+      {
+        "col": "Orange",
+        "deg": "109",
+        "min": "20"
+      }
+    ],
+    "Helium": [
+      {
+        "col": "Indigo",
+        "deg": "114",
+        "min": "12"
+      },
+      {
+        "col": "Blue",
+        "deg": "113",
+        "min": "30"
+      },
+      {
+        "col": "Cyan",
+        "deg": "112.5",
+        "min": "19"
+      },
+      {
+        "col": "Green",
+        "deg": "112.5",
+        "min": "0"
+      },
+      {
+        "col": "Green",
+        "deg": "112",
+        "min": "15"
+      },
+      {
+        "col": "Yellow",
+        "deg": "109",
+        "min": "19"
+      },
+      {
+        "col": "Red",
+        "deg": "106.5",
+        "min": "0"
+      }
+    ]
+  },
+  "notes": "",
+  "t": "2026-04-12T21:20:37.261Z",
+  "by": "Jared_Data"
+}
